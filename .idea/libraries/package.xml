@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="package">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/node_modules/vanilla-calendar-pro/package.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

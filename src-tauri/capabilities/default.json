@@ -1,0 +1,36 @@
+{
+	"$schema": "../gen/schemas/desktop-schema.json",
+	"identifier": "default",
+	"description": "enables the default permissions",
+	"windows": ["main"],
+	"permissions": [
+		"core:default",
+		"sql:default",
+		"sql:allow-load",
+		"sql:allow-execute",
+		"sql:allow-select",
+		"sql:allow-close",
+		"dialog:default",
+		"dialog:allow-open",
+		"fs:default",
+		"fs:allow-mkdir",
+		"fs:allow-app-write",
+		"fs:allow-app-write-recursive",
+		"fs:allow-picture-write",
+		"fs:allow-picture-write-recursive",
+		"fs:allow-write",
+		"fs:allow-write-file",
+		"fs:allow-copy-file",
+		"os:default",
+		"camera-kessdev:default",
+
+		{
+			"identifier": "fs:allow-mkdir",
+			"allow": [{ "path": "$APPDATA/**" }, { "path": "$APPDATALOCAL/**" }]
+		},
+		{
+			"identifier": "fs:allow-write-file",
+			"allow": [{ "path": "$APPDATA/**" }, { "path": "$APPDATALOCAL/**" }]
+		}
+	]
+}
