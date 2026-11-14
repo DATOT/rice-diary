@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 const THEMES = [
-  { id: "light", name: "Sáng", description: "Giao diện sáng, dễ nhìn ban ngày." },
-  { id: "dark", name: "Tối", description: "Giao diện tối, dịu mắt khi thiếu sáng." },
-  { id: "cupcake", name: "Bánh kem", description: "Tông màu nhẹ nhàng, nhiều sắc màu." },
+  { id: "system", name: "Hệ thống"},
+  { id: "light", name: "Sáng"},
+  { id: "dark", name: "Tối"},
+  { id: "cupcake", name: "Bánh kem"},
 ];
 export default function SettingsPage() {
   const [theme, setTheme] = useState("light");
@@ -22,10 +23,10 @@ export default function SettingsPage() {
     <h1 className="text-2xl font-black mb-2">Cài đặt</h1>
     <p className="opacity-70 mb-6">Tùy chỉnh giao diện ứng dụng.</p>
     <section className="card bg-base-200 p-5 gap-4">
-      <h2 className="text-lg font-bold">Chủ đề</h2>
+      <h2 className="text-lg font-bold">Giao diện</h2>
       {THEMES.map((item) => <label key={item.id} className="flex items-center gap-3 p-3 rounded-box bg-base-100 cursor-pointer">
         <input className="radio radio-primary" type="radio" name="theme" value={item.id} checked={theme === item.id} onChange={() => chooseTheme(item.id)} />
-        <span><span className="font-semibold block">{item.name}</span><span className="text-sm opacity-65">{item.description}</span></span>
+        <span><span className="font-semibold block">{item.name}</span></span>
       </label>)}
     </section>
   </main>;
