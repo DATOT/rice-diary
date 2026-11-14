@@ -3,8 +3,8 @@ use std::sync::Mutex;
 
 use ort::session::Session;
 use ort::session::builder::GraphOptimizationLevel;
-use tauri::{ Manager, State };
-use tauri_plugin_sql::{ Migration, MigrationKind };
+use tauri::{Manager, State};
+use tauri_plugin_sql::{Migration, MigrationKind};
 
 mod nitrogen;
 
@@ -35,39 +35,43 @@ fn get_ort_lib_path() -> PathBuf {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let lib_path = get_ort_lib_path();
-    
-    // Initialize ONNX Runtime
     ort::init_from(&lib_path)
         .expect("libonnxruntime should exist")
         .commit();
 
-    let migrations = vec![Migration {
-        version: 1,
-        description: "create_initial_tables",
-        sql: include_str!("../database/create_tables.sql"),
-        kind: MigrationKind::Up,
-    }];
+    let migrations = vec![
+        Migration {
+            version: 1,
+            description: "create_initial_tables",
+            sql: include_str!("../database/create_tables.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 2,
+            description: "diary_and_note_features",
+            sql: include_str!("../database/migrations/2_diary_note_features.sql"),
+            kind: MigrationKind::Up,
+        },
+    ];
 
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations("sqlite:rice_diary.sqlite", migrations)
-                .build()
+                .build(),
         )
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_camera_kessdev::init())
-        // ONLY ONE SETUP BLOCK HERE
         .setup(|app| {
-            // Embed the model directly into the binary!
-            // The path is relative to this file (src/lib.rs)
             let model_bytes = include_bytes!("../models/nitrogen_deficiency/model.onnx");
-
             let session = Session::builder()
                 .expect("Failed to build session builder")
-                .with_optimization_level(GraphOptimizationLevel::Level3).expect("Opt level failed")
-                .with_intra_threads(4).expect("Threads failed")
+                .with_optimization_level(GraphOptimizationLevel::Level3)
+                .expect("Opt level failed")
+                .with_intra_threads(4)
+                .expect("Threads failed")
                 .commit_from_memory(model_bytes)
                 .expect("Failed to load model.onnx");
 
@@ -79,7 +83,7 @@ pub fn run() {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
                         .level(log::LevelFilter::Info)
-                        .build()
+                        .build(),
                 )?;
             }
             Ok(())
