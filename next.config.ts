@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 const isProd = process.env.NODE_ENV === "production";
 const internalHost = process.env.TAURI_DEV_HOST || "localhost";
 
+console.log(internalHost)
+
 const nextConfig: NextConfig = {
   /* config options here */
   output: "export",
@@ -21,7 +23,8 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  assetPrefix: isProd ? undefined : `http://${internalHost}:3000`,
+  assetPrefix: isProd ? undefined : `http://${internalHost}:1420`,
+  allowedDevOrigins: ['tauri.localhost', '192.168.1.9'],
 };
 
 export default nextConfig;

@@ -5,7 +5,7 @@
 	"identifier": "com.tauri.dev",
 	"build": {
 		"frontendDist": "../out",
-		"devUrl": "http://localhost:3000",
+		"devUrl": "http://localhost:1420",
 		"beforeDevCommand": "npm run dev",
 		"beforeBuildCommand": "npm run build"
 	},
@@ -37,7 +37,7 @@
 			"icons/icon.icns",
 			"icons/icon.ico"
 		],
-		"resources": ["./database/*", "models/**/*"],
+		"resources": ["./models/nitrogen_deficiency/model.onnx","./database/*", "models/**/*"],
 		"android": {
 			"debugApplicationIdSuffix": ".debug"
 		}

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "next dev --webpack -p 1420",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -22,6 +22,7 @@
     "react-dom": "19.3.0",
     "react-icons": "^5.7.0",
     "react-router-dom": "^7.18.5",
+    "recharts": "^3.10.1",
     "tauri-plugin-camera": "^0.1.4",
     "tauri-plugin-camera-kessdev": "^0.2.0-beta.3",
     "vanilla-calendar-pro": "^3.4.0"
