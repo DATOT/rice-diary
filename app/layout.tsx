@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import AppNavbar from "./components/AppNavbar";
+import NotificationScheduler from "./components/NotificationScheduler";
 import "./globals.css";
 import { NoteCreationProvider } from "./contexts/NoteCreationContext";
 
@@ -7,7 +8,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return <html lang="vi" className="h-full antialiased" suppressHydrationWarning>
     <body className="min-h-full flex flex-col">
       <NoteCreationProvider>
-        <main className="min-h-screen"><Suspense fallback={<div>Đang tải...</div>}>{children}</Suspense></main>
+        <NotificationScheduler />
+        <main className="min-h-screen"><Suspense fallback={<div>Đang tải…</div>}>{children}</Suspense></main>
         <AppNavbar />
       </NoteCreationProvider>
     </body>
