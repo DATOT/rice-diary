@@ -8,8 +8,6 @@ repository = ""
 edition = "2024"
 rust-version = "1.90"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [lib]
 name = "app_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
@@ -26,7 +24,8 @@ tauri-plugin-log = "2"
 tauri-plugin-sql = { version = "2.6.0", features = ["sqlite"] }
 tauri-plugin-fs = "2.7.1"
 tauri-plugin-dialog = "2"
-ort = {version="2.0.0-rc.13", default-features = false, features= ["load-dynamic", "ndarray"] }
+tauri-plugin-notification = "2"
+ort = { version = "2.0.0-rc.13", default-features = false, features = ["load-dynamic", "ndarray"] }
 ndarray = "0.17.2"
 image = "0.25.10"
 tauri-plugin-os = "2"

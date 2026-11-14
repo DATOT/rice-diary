@@ -40,33 +40,15 @@ pub fn run() {
         .commit();
 
     let migrations = vec![
-        Migration {
-            version: 1,
-            description: "create_initial_tables",
-            sql: include_str!("../database/create_tables.sql"),
-            kind: MigrationKind::Up,
-        },
-        Migration {
-            version: 2,
-            description: "diary_and_note_features",
-            sql: include_str!("../database/migrations/2_diary_note_features.sql"),
-            kind: MigrationKind::Up,
-        },
-        Migration {
-            version: 3,
-            description: "disease_results_and_app_settings",
-            sql: include_str!("../database/migrations/3_insights_and_settings.sql"),
-            kind: MigrationKind::Up,
-        },
+        Migration { version: 1, description: "create_initial_tables", sql: include_str!("../database/create_tables.sql"), kind: MigrationKind::Up },
+        Migration { version: 2, description: "diary_and_note_features", sql: include_str!("../database/migrations/2_diary_note_features.sql"), kind: MigrationKind::Up },
+        Migration { version: 3, description: "disease_results_and_app_settings", sql: include_str!("../database/migrations/3_insights_and_settings.sql"), kind: MigrationKind::Up },
     ];
 
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
-        .plugin(
-            tauri_plugin_sql::Builder::default()
-                .add_migrations("sqlite:rice_diary.sqlite", migrations)
-                .build(),
-        )
+        .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_sql::Builder::default().add_migrations("sqlite:rice_diary.sqlite", migrations).build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_camera_kessdev::init())
@@ -80,17 +62,9 @@ pub fn run() {
                 .expect("Threads failed")
                 .commit_from_memory(model_bytes)
                 .expect("Failed to load model.onnx");
-
-            app.manage(AppState {
-                session: Mutex::new(session),
-            });
-
+            app.manage(AppState { session: Mutex::new(session) });
             if cfg!(debug_assertions) {
-                app.handle().plugin(
-                    tauri_plugin_log::Builder::default()
-                        .level(log::LevelFilter::Info)
-                        .build(),
-                )?;
+                app.handle().plugin(tauri_plugin_log::Builder::default().level(log::LevelFilter::Info).build())?;
             }
             Ok(())
         })

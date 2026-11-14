@@ -23,7 +23,7 @@
 		"fs:allow-copy-file",
 		"os:default",
 		"camera-kessdev:default",
-
+		"notification:default",
 		{
 			"identifier": "fs:allow-mkdir",
 			"allow": [{ "path": "$APPDATA/**" }, { "path": "$APPDATALOCAL/**" }]
