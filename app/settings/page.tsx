@@ -1,33 +1,78 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { loadAppSettings, saveAppSettings, type AppSettings } from "@/app/lib/services/insights";
+
 const THEMES = [
-  { id: "system", name: "Hệ thống"},
-  { id: "light", name: "Sáng"},
-  { id: "dark", name: "Tối"},
-  { id: "cupcake", name: "Bánh kem"},
+  { id: "system", name: "Theo hệ thống" },
+  { id: "light", name: "Sáng" },
+  { id: "dark", name: "Tối" },
+  { id: "cupcake", name: "Bánh kem" },
 ];
+
 export default function SettingsPage() {
-  const [theme, setTheme] = useState("light");
+  const [settings, setSettings] = useState<AppSettings>({ theme: "light", streakEnabled: true, streakFrequencyHours: 24, tipsEnabled: false });
+  const [ready, setReady] = useState(false);
+  const [message, setMessage] = useState("");
+
   useEffect(() => {
-    const saved = localStorage.getItem("rice-diary-theme") || "light";
-    setTheme(saved);
-    document.documentElement.dataset.theme = saved;
+    let alive = true;
+    loadAppSettings().then((value) => {
+      if (!alive) return;
+      setSettings(value);
+      document.documentElement.dataset.theme = value.theme;
+      setReady(true);
+    }).catch(() => setReady(true));
+    return () => { alive = false; };
   }, []);
-  function chooseTheme(value: string) {
-    setTheme(value);
-    localStorage.setItem("rice-diary-theme", value);
-    document.documentElement.dataset.theme = value;
+
+  async function update(next: AppSettings) {
+    setSettings(next);
+    document.documentElement.dataset.theme = next.theme;
+    try {
+      await saveAppSettings(next);
+      setMessage("Đã lưu cài đặt.");
+    } catch (reason) {
+      setMessage(reason instanceof Error ? reason.message : "Không thể lưu cài đặt.");
+    }
   }
-  return <main className="max-w-2xl mx-auto p-4 pb-24">
-    <h1 className="text-2xl font-black mb-2">Cài đặt</h1>
-    <p className="opacity-70 mb-6">Tùy chỉnh giao diện ứng dụng.</p>
-    <section className="card bg-base-200 p-5 gap-4">
+
+  async function enableNotifications() {
+    if (!("Notification" in window)) {
+      setMessage("Thiết bị này chưa hỗ trợ thông báo.");
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    setMessage(permission === "granted" ? "Đã bật quyền thông báo." : "Bạn chưa cấp quyền thông báo trong thiết bị.");
+  }
+
+  if (!ready) return <div className="p-8 text-center">Đang tải cài đặt…</div>;
+  return <main className="mx-auto flex w-full max-w-xl flex-col gap-5 p-4 pb-28">
+    <header><h1 className="text-2xl font-black">Cài đặt</h1><p className="mt-1 text-sm opacity-70">Tùy chỉnh giao diện và lời nhắc chăm sóc cây.</p></header>
+    <section className="card gap-3 bg-base-200 p-4">
       <h2 className="text-lg font-bold">Giao diện</h2>
-      {THEMES.map((item) => <label key={item.id} className="flex items-center gap-3 p-3 rounded-box bg-base-100 cursor-pointer">
-        <input className="radio radio-primary" type="radio" name="theme" value={item.id} checked={theme === item.id} onChange={() => chooseTheme(item.id)} />
-        <span><span className="font-semibold block">{item.name}</span></span>
+      {THEMES.map((theme) => <label key={theme.id} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-box bg-base-100 p-3">
+        <input className="radio radio-primary" type="radio" name="theme" checked={settings.theme === theme.id} onChange={() => void update({ ...settings, theme: theme.id })} />
+        <span>{theme.name}</span>
       </label>)}
     </section>
+    <section className="card gap-4 bg-base-200 p-4">
+      <div><h2 className="text-lg font-bold">Thông báo</h2><p className="text-sm opacity-70">Thông báo được nhắc khi ứng dụng đang chạy.</p></div>
+      <button className="btn btn-outline min-h-12" onClick={enableNotifications}>Cho phép thông báo trên thiết bị</button>
+      <label className="flex min-h-12 items-center justify-between gap-3 rounded-box bg-base-100 p-3">
+        <span><b>Nhắc duy trì chuỗi</b><span className="block text-xs opacity-70">Nhắc ghi nhật ký để giữ chuỗi ngày.</span></span>
+        <input className="toggle toggle-primary" type="checkbox" checked={settings.streakEnabled} onChange={(event) => void update({ ...settings, streakEnabled: event.target.checked })} />
+      </label>
+      <label className="form-control gap-2"><span className="font-medium">Tần suất nhắc chuỗi</span>
+        <select className="select select-bordered w-full" value={settings.streakFrequencyHours} onChange={(event) => void update({ ...settings, streakFrequencyHours: Number(event.target.value) })}>
+          <option value={6}>Mỗi 6 giờ</option><option value={12}>Mỗi 12 giờ</option><option value={24}>Mỗi ngày</option><option value={48}>Mỗi 2 ngày</option><option value={168}>Mỗi tuần</option>
+        </select>
+      </label>
+      <label className="flex min-h-12 items-center justify-between gap-3 rounded-box bg-base-100 p-3">
+        <span><b>Mẹo chăm sóc ngẫu nhiên</b><span className="block text-xs opacity-70">Ví dụ: “Đừng quên tưới cây nhé!”</span></span>
+        <input className="toggle toggle-primary" type="checkbox" checked={settings.tipsEnabled} onChange={(event) => void update({ ...settings, tipsEnabled: event.target.checked })} />
+      </label>
+    </section>
+    {message && <p role="status" className="text-center text-sm opacity-75">{message}</p>}
   </main>;
 }

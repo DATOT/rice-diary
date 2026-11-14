@@ -52,6 +52,12 @@ pub fn run() {
             sql: include_str!("../database/migrations/2_diary_note_features.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+            description: "disease_results_and_app_settings",
+            sql: include_str!("../database/migrations/3_insights_and_settings.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
