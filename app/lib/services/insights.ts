@@ -6,6 +6,7 @@ export type AppSettings = {
   streakEnabled: boolean;
   streakFrequencyHours: number;
   tipsEnabled: boolean;
+  reminderTime: string;
 };
 
 export type DiseaseResultRecord = {
@@ -34,6 +35,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   streakEnabled: true,
   streakFrequencyHours: 24,
   tipsEnabled: false,
+  reminderTime: "09:00",
 };
 
 let database: Promise<Database> | null = null;
@@ -51,6 +53,7 @@ export async function loadAppSettings(): Promise<AppSettings> {
     streakEnabled: values.streakEnabled === undefined ? DEFAULT_SETTINGS.streakEnabled : values.streakEnabled === "true",
     streakFrequencyHours: Math.max(1, Math.min(168, Number(values.streakFrequencyHours) || DEFAULT_SETTINGS.streakFrequencyHours)),
     tipsEnabled: values.tipsEnabled === undefined ? DEFAULT_SETTINGS.tipsEnabled : values.tipsEnabled === "true",
+    reminderTime: /^([01]\d|2[0-3]):[0-5]\d$/.test(values.reminderTime || "") ? values.reminderTime : DEFAULT_SETTINGS.reminderTime,
   };
 }
 
@@ -59,6 +62,7 @@ export async function saveAppSettings(settings: AppSettings): Promise<void> {
   for (const [key, value] of Object.entries(settings)) {
     await db.execute("INSERT INTO app_settings (key, value) VALUES ($1, $2) ON CONFLICT(key) DO UPDATE SET value = excluded.value", [key, String(value)]);
   }
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("rice-diary-settings-changed"));
 }
 
 export async function saveDiseaseResult(noteId: string, leafPath: string, status: DiseaseResultRecord["status"], result: DiseaseDetectionResult | null, error: string | null = null) {
@@ -90,10 +94,9 @@ export async function analyzeNoteForDiseases(noteId: string, leafPaths: string[]
   if (!leafPaths.length) return;
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     await Promise.all(leafPaths.map((path) => saveDiseaseResult(noteId, path, "offline", null)));
-    onProgress?.("Không có kết nối Wi-Fi — đã bỏ qua nhận diện bệnh.");
+    onProgress?.("Không có kết nối mạng — đã bỏ qua nhận diện bệnh.");
     return;
   }
-
   for (let index = 0; index < leafPaths.length; index += 1) {
     const path = leafPaths[index];
     onProgress?.(`Đang nhận diện bệnh trên lá ${index + 1}/${leafPaths.length}…`);
