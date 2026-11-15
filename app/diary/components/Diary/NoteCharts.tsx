@@ -44,7 +44,7 @@ export function ChartCard({
     <section className="card gap-3 border border-base-300 bg-base-200 p-4 shadow-sm sm:p-5">
       <h3 className="font-bold">{title}</h3>
       {empty ? (
-        <p className="text-sm text-base-content/70">{empty}</p>
+        <p className="w-52 h-full text-sm text-base-content/70">{empty}</p>
       ) : (
         <div className="h-52 w-full sm:h-60">{children}</div>
       )}

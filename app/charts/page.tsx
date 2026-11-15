@@ -44,6 +44,7 @@ export default function ChartsPage() {
   const [diseaseFilter, setDiseaseFilter] = useState("all");
   const [selectedResultId, setSelectedResultId] = useState("");
   const [error, setError] = useState("");
+  console.log(leafRows, detections, rows);
 
   useEffect(() => {
     loadChartRows()
@@ -55,6 +56,21 @@ export default function ChartsPage() {
     loadDiseaseLeaves()
       .then(setDetections)
       .catch((e) => setError((prev) => `${prev}\nloadDiseaseLeaves: ${e}`));
+  }, []);
+  useEffect(() => {
+    Promise.all([loadChartRows(), loadLeafRows(), loadDiseaseLeaves()])
+      .then(([chart, leaves, found]) => {
+        setRows(chart);
+        setLeafRows(leaves);
+        setDetections(found);
+      })
+      .catch((reason) =>
+        setError(
+          reason instanceof Error
+            ? reason.message
+            : "Không thể tải dữ liệu biểu đồ.",
+        ),
+      );
   }, []);
 
   const diaries = useMemo(
