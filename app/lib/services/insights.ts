@@ -31,7 +31,7 @@ export type ChartRow = {
 };
 
 const DEFAULT_SETTINGS: AppSettings = {
-  theme: "light",
+  theme: "system",
   streakEnabled: true,
   streakFrequencyHours: 24,
   tipsEnabled: false,

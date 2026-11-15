@@ -25,6 +25,15 @@ const nextConfig: NextConfig = {
   },
   assetPrefix: isProd ? undefined : `http://${internalHost}:1420`,
   allowedDevOrigins: ['tauri.localhost', '192.168.1.9'],
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/diary',
+        permanent: false, // 307 temporary redirect
+      },
+    ];
+  },
 };
 
 export default nextConfig;

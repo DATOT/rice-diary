@@ -48,7 +48,7 @@ export default function SettingsPage() {
     }
   }
 
-  if (!ready) return <div className="p-8 text-center">Đang tải cài đặt…</div>;
+  if (!ready) return <div className="p-8 text-center">Đang tải cài đặt...</div>;
   return <main className="mx-auto flex w-full max-w-xl flex-col gap-5 p-4 pb-28">
     <header><h1 className="text-2xl font-black">Cài đặt</h1><p className="mt-1 text-sm opacity-70">Tùy chỉnh giao diện và lời nhắc chăm sóc cây.</p></header>
     <section className="card gap-3 bg-base-200 p-4">

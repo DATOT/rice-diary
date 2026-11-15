@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { readFile } from "@tauri-apps/plugin-fs";
+import { fetch } from "@tauri-apps/plugin-http";
 
 const DEBUG_AI = process.env.NODE_ENV !== "production";
 
