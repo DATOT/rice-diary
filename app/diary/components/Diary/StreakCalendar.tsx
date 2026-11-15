@@ -47,7 +47,6 @@ const StreakCalendar = ({ createdAt, streaks }: Props) => {
 
   return (
     <div className="w-full">
-      <p className="font-bold">Chuỗi:</p>
       <div className="flex flex-col items-center">
         {loading && <div className="skeleton w-full h-42" />}
         <div ref={calendarRef} />
