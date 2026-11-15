@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 const isProd = process.env.NODE_ENV === "production";
 const internalHost = process.env.TAURI_DEV_HOST || "localhost";
 
-console.log(internalHost)
+console.log(internalHost);
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -13,23 +13,13 @@ const nextConfig: NextConfig = {
   experimental: {
     agentFeedback: true,
   },
-  cacheComponents: true,
-  partialPrefetching: true,
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
   assetPrefix: isProd ? undefined : `http://${internalHost}:1420`,
-  allowedDevOrigins: ['tauri.localhost', '192.168.1.9'],
+  allowedDevOrigins: ["tauri.localhost", "192.168.1.9"],
   async redirects() {
     return [
       {
-        source: '/',
-        destination: '/diary',
+        source: "/",
+        destination: "/diary",
         permanent: false, // 307 temporary redirect
       },
     ];

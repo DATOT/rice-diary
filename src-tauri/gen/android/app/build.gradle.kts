@@ -15,12 +15,11 @@ val tauriProperties = Properties().apply {
 }
 
 android {
-sourceSets["main"].jniLibs.srcDirs("src/main/jniLibs")
     compileSdk = 37
-    namespace = "com.tauri.dev"
+    namespace = "com.taur_rice_diary.dev"
     defaultConfig {
         manifestPlaceholders["usesCleartextTraffic"] = "false"
-        applicationId = "com.tauri.dev"
+        applicationId = "com.taur_rice_diary.dev"
         minSdk = 24
         targetSdk = 37
         versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()
@@ -77,7 +76,6 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.10.1")
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.lifecycle:lifecycle-process:2.10.0")
-    //implementation("com.microsoft.onnxruntime:onnxruntime-android:1.31.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.4")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")

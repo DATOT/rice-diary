@@ -6,15 +6,19 @@ import { RefObject, useEffect, useMemo, useRef, useState } from "react";
 interface Props {
   createdAt: Date;
   streaks: Date[];
-  selectionMethod: DateMode;
+  selectionMethod?: DateMode;
+  selectedDates: Date[];
+  onChange: (dates: Date[]) => void;
   onClickDate?: (self: Calendar, event: MouseEvent) => void;
   calendarInstanceRef?: RefObject<Calendar | null>;
 }
 
 const StreakCalendarInput = ({
   createdAt,
-  selectionMethod,
+  selectionMethod = "multiple",
   streaks,
+  selectedDates,
+  onChange,
   onClickDate,
   calendarInstanceRef,
 }: Props) => {
@@ -22,9 +26,9 @@ const StreakCalendarInput = ({
   const [loading, setLoading] = useState(true);
 
   const today = useMemo(() => new Date(), []);
-
   const createdAtTime = createdAt.getTime();
   const streakKey = streaks.map((d) => d.getTime()).join(",");
+  const selectedKey = selectedDates.map((d) => d.getTime()).join(",");
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -43,11 +47,25 @@ const StreakCalendarInput = ({
 
       disableAllDates: true,
       enableDates: [today, ...streaks],
+      selectedDates: selectedDates.map(
+        (d: Date) => d.toISOString().split("T")[0],
+      ),
 
-      onClickDate,
+      onClickDate: (self: Calendar, event: MouseEvent) => {
+        if (self.selectedDates) {
+          onChange(
+            self.selectedDates.map((d: string | number | Date) => new Date(d)),
+          );
+        }
+        if (onClickDate) {
+          onClickDate(self, event);
+        }
+      },
     });
 
-    calendarInstanceRef && (calendarInstanceRef.current = calendar);
+    if (calendarInstanceRef) {
+      calendarInstanceRef.current = calendar;
+    }
 
     calendar.init();
     calendar.show();
@@ -62,11 +80,14 @@ const StreakCalendarInput = ({
   }, [
     createdAtTime,
     streakKey,
+    selectedKey,
     selectionMethod,
     onClickDate,
     calendarInstanceRef,
     today,
     streaks,
+    selectedDates,
+    onChange,
   ]);
 
   return (
