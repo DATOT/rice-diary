@@ -150,7 +150,7 @@ export default function DiarySelectPage() {
 
       <div className="w-full max-w-2xl">
         <button
-          className="btn btn-primary min-h-12 w-full rounded-2xl shadow-sm sm:w-auto sm:px-6"
+          className="btn btn-primary min-h-12 w-full rounded-2xl shadow-sm active:scale-[0.99] sm:w-auto sm:px-6"
           onClick={() => createDialogRef.current?.showModal()}
         >
           + Tạo nhật ký mới
@@ -162,8 +162,8 @@ export default function DiarySelectPage() {
           role="alert"
           className="alert alert-error w-full max-w-2xl shadow-sm"
         >
-          <span>{error}</span>
-          <button className="btn btn-sm btn-ghost" onClick={refreshDiaries}>
+          <span className="min-w-0 flex-1">{error}</span>
+          <button className="btn btn-sm btn-ghost shrink-0" onClick={refreshDiaries}>
             Thử lại
           </button>
         </div>

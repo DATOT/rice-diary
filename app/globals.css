@@ -13,26 +13,93 @@
   --vc-date-selected-bg: color-mix(in srgb, var(--color-primary) 75%, var(--color-base-100));
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html {
   min-height: 100%;
+  width: 100%;
+  overflow-x: clip;
   background: var(--color-base-100);
   color: var(--color-base-content);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   min-height: 100vh;
-  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   background: var(--color-base-100);
+}
+
+main,
+section,
+article,
+aside,
+header,
+.card,
+.card-body {
+  min-width: 0;
+  max-width: 100%;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+/* Calendar controls and chart labels can otherwise exceed narrow phone widths. */
+.vanilla-calendar,
+.vanilla-calendar *,
+.recharts-wrapper,
+.recharts-surface {
+  max-width: 100%;
+}
+
+.vanilla-calendar {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.recharts-wrapper {
+  min-width: 0;
 }
 
 button,
 input,
 textarea,
 select {
+  max-width: 100%;
   transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
 
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .modal-box {
+    width: calc(100% - 1.5rem);
+    max-width: 32rem;
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+  }
+
+  .alert {
+    flex-wrap: wrap;
+    overflow-wrap: anywhere;
+  }
 }
