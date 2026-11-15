@@ -46,19 +46,15 @@ export default function ChartsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    Promise.all([loadChartRows(), loadLeafRows(), loadDiseaseLeaves()])
-      .then(([chart, leaves, found]) => {
-        setRows(chart);
-        setLeafRows(leaves);
-        setDetections(found);
-      })
-      .catch((reason) =>
-        setError(
-          reason instanceof Error
-            ? reason.message
-            : "Không thể tải dữ liệu biểu đồ.",
-        ),
-      );
+    loadChartRows()
+      .then(setRows)
+      .catch((e) => setError((prev) => `${prev}\nloadChartRows: ${e}`));
+    loadLeafRows()
+      .then(setLeafRows)
+      .catch((e) => setError((prev) => `${prev}\nloadLeafRows: ${e}`));
+    loadDiseaseLeaves()
+      .then(setDetections)
+      .catch((e) => setError((prev) => `${prev}\nloadDiseaseLeaves: ${e}`));
   }, []);
 
   const diaries = useMemo(
@@ -105,7 +101,7 @@ export default function ChartsPage() {
       entry.notes += 1;
       entry.leaves += row.leaf_count;
       if (row.avg_nitrogen !== null) {
-        entry.sum += row.avg_nitrogen;
+        entry.sum += Number(row.avg_nitrogen);
         entry.n += 1;
       }
       byDate.set(row.local_date, entry);

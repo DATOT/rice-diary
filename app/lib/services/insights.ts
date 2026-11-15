@@ -255,7 +255,7 @@ export async function loadDiseaseLeaves(
     });
   }
   return Array.from(latest.values()).sort((a, b) =>
-    a.local_date.localeCompare(b.local_date),
+    (a.local_date ?? "").localeCompare(b.local_date ?? ""),
   );
 }
 
