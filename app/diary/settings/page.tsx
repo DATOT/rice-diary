@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { open } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
@@ -23,7 +23,6 @@ function DiarySettingsContent() {
   const [description, setDescription] = useState("");
   const [thumbnail, setThumbnail] = useState<string | null>(null);
   const [isDead, setIsDead] = useState(false);
-  const [allowDeadNotes, setAllowDeadNotes] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +34,7 @@ function DiarySettingsContent() {
       setLoading(false);
       return;
     }
+
     loadDiary(id)
       .then((value) => {
         if (!active) return;
@@ -42,12 +42,12 @@ function DiarySettingsContent() {
           setError("Không tìm thấy nhật ký.");
           return;
         }
+
         setDiary(value);
         setName(value.diary_name);
         setDescription(value.description || "");
         setThumbnail(value.thumbnail_path);
         setIsDead(Boolean(value.is_dead));
-        setAllowDeadNotes(Boolean(value.allow_dead_notes));
       })
       .catch((reason) =>
         setError(reason instanceof Error ? reason.message : String(reason)),
@@ -55,6 +55,7 @@ function DiarySettingsContent() {
       .finally(() => {
         if (active) setLoading(false);
       });
+
     return () => {
       active = false;
     };
@@ -69,32 +70,42 @@ function DiarySettingsContent() {
           { name: "Hình ảnh", extensions: ["png", "jpg", "jpeg", "webp"] },
         ],
       });
+
       if (typeof selected === "string") setThumbnail(selected);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     }
   }
+
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!id || !diary || !name.trim()) return;
+
     setSaving(true);
     setError(null);
+
     let savedThumbnail: string | null = null;
+
     try {
       const thumbnailChanged = thumbnail !== diary.thumbnail_path;
-      if (thumbnailChanged && thumbnail)
+      if (thumbnailChanged && thumbnail) {
         savedThumbnail = await saveDiaryThumbnail(thumbnail);
+      }
+
       const nextThumbnail =
         savedThumbnail || (thumbnailChanged ? null : diary.thumbnail_path);
+
       await updateDiary(id, {
         diary_name: name.trim(),
         description: description.trim() || null,
         thumbnail_path: nextThumbnail,
         is_dead: isDead,
-        allow_dead_notes: allowDeadNotes,
       });
-      if (thumbnailChanged && diary.thumbnail_path)
+
+      if (thumbnailChanged && diary.thumbnail_path) {
         await deleteDiaryThumbnail(diary.thumbnail_path);
+      }
+
       router.replace(`/diary?id=${encodeURIComponent(id)}`);
     } catch (reason) {
       if (savedThumbnail) await deleteDiaryThumbnail(savedThumbnail);
@@ -103,59 +114,77 @@ function DiarySettingsContent() {
       setSaving(false);
     }
   }
-  if (loading)
+
+  if (loading) {
     return (
-      <div className="p-8 text-center">
-        <span className="loading loading-spinner" />
+      <div className="flex min-h-64 items-center justify-center p-8">
+        <span className="loading loading-spinner loading-lg" />
       </div>
     );
+  }
+
   return (
-    <main className="max-w-xl mx-auto p-4 pb-24">
-      <h1 className="text-2xl font-black mb-5">Cài đặt nhật ký</h1>
-      {error && <div className="alert alert-error mb-4">{error}</div>}
+    <main className="mx-auto max-w-xl p-4 pb-24">
+      <div className="mb-5 space-y-2">
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary/80">
+          Nhật ký
+        </p>
+        <h1 className="text-2xl font-black tracking-tight">Cài đặt nhật ký</h1>
+      </div>
+
+      {error && (
+        <div className="alert alert-error mb-4 shadow-sm">
+          <span>{error}</span>
+        </div>
+      )}
+
       {!diary ? (
-        <button className="btn" onClick={() => router.back()}>
+        <button className="btn btn-primary" onClick={() => router.back()}>
           Quay lại
         </button>
       ) : (
-        <form className="flex flex-col gap-5" onSubmit={save}>
-          <label className="form-control">
-            <span className="label-text mb-2">Tên cây / nhật ký</span>
+        <form className="space-y-5" onSubmit={save}>
+          <label className="form-control gap-2">
+            <span className="label-text font-medium">Tên cây / nhật ký</span>
             <input
-              className="input input-bordered"
+              className="input input-bordered w-full"
               value={name}
               onChange={(event) => setName(event.target.value)}
               maxLength={100}
               required
             />
           </label>
-          <label className="form-control">
-            <span className="label-text mb-2">Mô tả (không bắt buộc)</span>
+
+          <label className="form-control gap-2">
+            <span className="label-text font-medium">Mô tả (không bắt buộc)</span>
             <textarea
-              className="textarea textarea-bordered min-h-24"
+              className="textarea textarea-bordered min-h-24 w-full"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               maxLength={1000}
               placeholder="Thông tin về cây..."
             />
           </label>
-          <div className="card bg-base-200 p-4 gap-3">
-            <h2 className="font-bold">Ảnh đại diện</h2>
+
+          <div className="card border border-base-300 bg-base-200 p-4 shadow-sm">
+            <h2 className="mb-3 text-base font-bold">Ảnh đại diện</h2>
             {thumbnail && (
               <img
                 src={convertFileSrc(thumbnail)}
                 alt="Ảnh đại diện nhật ký"
-                className="w-full h-48 rounded-box object-cover"
+                className="mb-3 h-48 w-full rounded-box object-cover"
               />
             )}
+
             <div className="flex gap-2">
               <button
                 type="button"
-                className="btn btn-secondary flex-1"
+                className="btn btn-primary flex-1"
                 onClick={selectThumbnail}
               >
                 Đổi ảnh
               </button>
+
               {thumbnail && (
                 <button
                   type="button"
@@ -167,7 +196,8 @@ function DiarySettingsContent() {
               )}
             </div>
           </div>
-          <label className="flex gap-3 items-center p-4 rounded-box bg-base-200">
+
+          <label className="flex items-start gap-3 rounded-box border border-base-300 bg-base-200 p-4 shadow-sm">
             <input
               className="toggle toggle-error"
               type="checkbox"
@@ -175,34 +205,17 @@ function DiarySettingsContent() {
               onChange={(event) => setIsDead(event.target.checked)}
             />
             <span>
-              <b>Cây đã chết</b>
-              <span className="block text-sm opacity-70">
+              <b className="block">Cây đã chết</b>
+              <span className="mt-1 block text-sm opacity-70">
                 Khi bật, việc tạo ghi chú mới sẽ bị khóa theo mặc định.
               </span>
             </span>
           </label>
-          {/*
-              TODO: remove on database, keep now for prototype
-          isDead && (
-            <label className="flex gap-3 items-center p-4 rounded-box border border-base-300">
-              <input
-                className="checkbox checkbox-primary"
-                type="checkbox"
-                checked={allowDeadNotes}
-                onChange={(event) => setAllowDeadNotes(event.target.checked)}
-              />
-              <span>
-                <b>Cho phép ghi chú (chế độ cây xác sống)</b>
-                <span className="block text-sm opacity-70">
-                  Cho phép tiếp tục theo dõi cây đã chết.
-                </span>
-              </span>
-            </label>
-          )*/}
-          <div className="flex gap-3">
+
+          <div className="flex gap-3 pt-2">
             <button
               type="button"
-              className="btn flex-1"
+              className="btn btn-ghost flex-1"
               onClick={() => router.back()}
               disabled={saving}
             >
@@ -213,11 +226,7 @@ function DiarySettingsContent() {
               type="submit"
               disabled={saving || !name.trim()}
             >
-              {saving ? (
-                <span className="loading loading-spinner" />
-              ) : (
-                "Lưu thay đổi"
-              )}
+              {saving ? <span className="loading loading-spinner" /> : "Lưu thay đổi"}
             </button>
           </div>
         </form>
@@ -225,6 +234,7 @@ function DiarySettingsContent() {
     </main>
   );
 }
+
 export default function DiarySettingsPage() {
   return (
     <Suspense fallback={<div className="p-8 text-center">Đang tải...</div>}>
@@ -232,4 +242,3 @@ export default function DiarySettingsPage() {
     </Suspense>
   );
 }
-import { Suspense } from "react";

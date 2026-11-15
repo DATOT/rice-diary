@@ -24,21 +24,14 @@ export default function DiarySelectPage() {
 
   const [cards, setCards] = useState<DiarySummary[]>([]);
   const [cardToDelete, setCardToDelete] = useState<DiarySummary | null>(null);
-
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ------------------------------------
-  // Load diaries
-  // ------------------------------------
-
   async function refreshDiaries() {
     try {
       setError(null);
-
       const result = await loadDiaries();
-
       setCards(result);
     } catch (err) {
       setError(
@@ -78,10 +71,6 @@ export default function DiarySelectPage() {
     };
   }, []);
 
-  // ------------------------------------
-  // Create diary
-  // ------------------------------------
-
   async function handleCreateDiary(
     name: string,
     sourceThumbnailPath: string | null,
@@ -92,38 +81,26 @@ export default function DiarySelectPage() {
     let savedThumbnailPath: string | null = null;
 
     try {
-      // Copy the selected image into persistent app storage.
       if (sourceThumbnailPath) {
         savedThumbnailPath = await saveDiaryThumbnail(sourceThumbnailPath);
       }
 
       await createDiary(name, savedThumbnailPath);
-
       await refreshDiaries();
     } catch (err) {
-      // Prevent orphaned thumbnail files if database insertion fails.
       if (savedThumbnailPath) {
         await deleteDiaryThumbnail(savedThumbnailPath);
       }
-
       throw err;
     } finally {
       setLoading(false);
     }
   }
 
-  // ------------------------------------
-  // Open delete dialog
-  // ------------------------------------
-
   function handleOpenDelete(diary: DiarySummary) {
     setCardToDelete(diary);
     deleteDialogRef.current?.showModal();
   }
-
-  // ------------------------------------
-  // Delete diary
-  // ------------------------------------
 
   async function handleDeleteDiary() {
     if (!cardToDelete) return;
@@ -133,13 +110,9 @@ export default function DiarySelectPage() {
 
     try {
       await deleteDiary(cardToDelete.id);
-
-      // Delete thumbnail after successful database deletion.
       await deleteDiaryThumbnail(cardToDelete.thumbnail_path);
-
       deleteDialogRef.current?.close();
       setCardToDelete(null);
-
       await refreshDiaries();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Không thể xóa nhật ký.");
@@ -148,21 +121,13 @@ export default function DiarySelectPage() {
     }
   }
 
-  // ------------------------------------
-  // Render
-  // ------------------------------------
-
   return (
-    <div className="w-full p-4 flex flex-col gap-4 items-center pb-24">
-      {/* Create modal */}
-
+    <div className="flex w-full flex-col items-center gap-4 p-4 pb-24">
       <CreateDiaryModal
         dialogRef={createDialogRef}
         loading={loading}
         onCreate={handleCreateDiary}
       />
-
-      {/* Delete modal */}
 
       <DeleteDiaryModal
         dialogRef={deleteDialogRef}
@@ -171,45 +136,44 @@ export default function DiarySelectPage() {
         onConfirm={handleDeleteDiary}
       />
 
-      {/* Header */}
+      <div className="w-full max-w-xl space-y-3">
+        <div className="rounded-box border border-base-300 bg-base-200 p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
+            Quản lý
+          </p>
+          <h1 className="mt-2 text-2xl font-black tracking-tight">Nhật ký của bạn</h1>
+        </div>
 
-      <h1 className="font-black">Tạo nhật ký mới</h1>
+        <button
+          className="btn btn-primary w-full rounded-2xl"
+          onClick={() => createDialogRef.current?.showModal()}
+        >
+          + Tạo nhật ký mới
+        </button>
+      </div>
 
-      <button
-        className="btn btn-primary w-full"
-        onClick={() => createDialogRef.current?.showModal()}
-      >
-        +
-      </button>
-
-      <div className="divider" />
-
-      <h1 className="font-black">Các nhật ký của bạn</h1>
-
-      {/* Error */}
+      <div className="divider my-0 w-full max-w-xl" />
 
       {error && (
-        <div className="alert alert-error w-full">
+        <div className="alert alert-error w-full max-w-xl shadow-sm">
           <span>{error}</span>
-          <button className="btn btn-sm" onClick={refreshDiaries}>
+          <button className="btn btn-sm btn-ghost" onClick={refreshDiaries}>
             Thử lại
           </button>
         </div>
       )}
-
-      {/* Loading */}
 
       {initialLoading ? (
         <div className="flex justify-center p-8">
           <span className="loading loading-spinner loading-lg" />
         </div>
       ) : cards.length === 0 ? (
-        <div className="text-center opacity-60 p-8">
+        <div className="w-full max-w-xl rounded-box border border-dashed border-base-300 bg-base-200 p-8 text-center">
           <p className="text-lg font-semibold">Chưa có nhật ký nào</p>
-          <p className="text-sm">Hãy tạo nhật ký đầu tiên của bạn!</p>
+          <p className="mt-2 text-sm opacity-70">Hãy tạo nhật ký đầu tiên của bạn.</p>
         </div>
       ) : (
-        <div className="w-full flex flex-col items-center gap-4">
+        <div className="flex w-full max-w-xl flex-col items-center gap-4">
           {cards.map((card) => (
             <DiaryCard key={card.id} diary={card} onDelete={handleOpenDelete} />
           ))}

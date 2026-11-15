@@ -40,8 +40,6 @@ export default function CreateDiaryModal({
       });
 
       if (selected) {
-        const url = convertFileSrc(selected);
-
         setThumbnailPath(selected);
       }
     } catch (err) {
@@ -53,7 +51,6 @@ export default function CreateDiaryModal({
     e.preventDefault();
 
     const trimmedName = name.trim();
-
     if (!trimmedName) {
       setError("Vui lòng nhập tên nhật ký.");
       return;
@@ -63,11 +60,9 @@ export default function CreateDiaryModal({
 
     try {
       await onCreate(trimmedName, thumbnailPath);
-
       resetForm();
       dialogRef.current?.close();
     } catch (err) {
-      console.log(err);
       setError(err instanceof Error ? err.message : "Không thể tạo nhật ký.");
     }
   }
@@ -77,90 +72,85 @@ export default function CreateDiaryModal({
     dialogRef.current?.close();
   }
 
-  console.log(thumbnailPath ? convertFileSrc(thumbnailPath) : "/image.jfif"); // did work
   return (
     <dialog className="modal" ref={dialogRef}>
-      <div className="modal-box">
-        <h3 className="font-bold text-lg">Tạo nhật ký mới</h3>
+      <div className="modal-box border border-base-300 bg-base-100 shadow-xl">
+        <h3 className="text-lg font-bold">Tạo nhật ký mới</h3>
 
-        <form onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-4 mt-4">
-            <div>
-              <label className="label" htmlFor="diary_name">
-                Tên nhật ký
-              </label>
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div>
+            <label className="label" htmlFor="diary_name">
+              <span className="label-text">Tên nhật ký</span>
+            </label>
+            <input
+              type="text"
+              id="diary_name"
+              className="input input-bordered w-full"
+              placeholder="Tên nhật ký"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={100}
+              disabled={loading}
+              autoFocus
+            />
+          </div>
 
-              <input
-                type="text"
-                id="diary_name"
-                className="input input-bordered w-full"
-                placeholder="Tên nhật ký"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={100}
-                disabled={loading}
-                autoFocus
-              />
-            </div>
+          <div>
+            <label className="label">
+              <span className="label-text">Hình đại diện (không bắt buộc)</span>
+            </label>
 
-            <div>
-              <label className="label">Hình đại diện (không bắt buộc)</label>
+            <button
+              type="button"
+              className="btn btn-outline btn-primary w-full"
+              onClick={selectThumbnail}
+              disabled={loading}
+            >
+              Chọn hình ảnh
+            </button>
 
-              <button
-                type="button"
-                className="btn btn-accent w-full"
-                onClick={selectThumbnail}
-                disabled={loading}
-              >
-                Chọn hình ảnh
-              </button>
+            {thumbnailPath && (
+              <p className="mt-2 break-all text-xs opacity-60">
+                {thumbnailPath.split(/[\\/]/).pop()}
+              </p>
+            )}
+          </div>
 
-              {thumbnailPath && (
-                <p className="text-xs opacity-60 mt-2 break-all">
-                  {thumbnailPath.split(/[\\/]/).pop()}
-                </p>
-              )}
-            </div>
+          <div>
+            <label className="label">
+              <span className="label-text">Xem trước</span>
+            </label>
 
-            <div>
-              <label className="label">Xem trước</label>
+            <div className="flex w-full items-center justify-center">
+              <div className="card w-[90%] overflow-hidden border border-base-300 bg-base-200">
+                <figure>
+                  <img
+                    src={thumbnailPath ? convertFileSrc(thumbnailPath) : "/image.jfif"}
+                    alt="Diary preview"
+                    className="h-40 w-full object-cover"
+                  />
+                </figure>
 
-              <div className="flex w-full items-center justify-center">
-                <div className="card bg-base-300 image-full w-[90%]">
-                  <figure>
-                    <img
-                      src={
-                        thumbnailPath
-                          ? convertFileSrc(thumbnailPath)
-                          : "/image.jfif"
-                      }
-                      alt="Diary preview"
-                      className="w-full h-40 object-cover"
-                    />
-                  </figure>
-
-                  <div className="card-body p-4">
-                    <StreakIcon
-                      streak={false}
-                      size="16pt"
-                      className="absolute top-3 right-3 z-10"
-                    />
-
-                    <h3 className="card-title text-base">
-                      {name.trim() || "Tên nhật ký"}
-                    </h3>
-                  </div>
+                <div className="card-body p-4">
+                  <StreakIcon
+                    streak={false}
+                    size="16pt"
+                    className="absolute right-3 top-3 z-10"
+                  />
+                  <h3 className="card-title text-base">
+                    {name.trim() || "Tên nhật ký"}
+                  </h3>
                 </div>
               </div>
             </div>
-
-            {error && <div className="alert alert-error text-sm">{error}</div>}
           </div>
+
+          {error && <div className="alert alert-error text-sm">{error}</div>}
 
           <div className="modal-action">
             <button
               type="button"
-              className="btn"
+              className="btn btn-ghost"
               onClick={handleCancel}
               disabled={loading}
             >
