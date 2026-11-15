@@ -24,14 +24,27 @@ import { diseaseColor, diseaseKey, diseaseName, nitrogenLevel } from "@/app/lib/
 
 export function ChartCard({ title, children, empty }: { title: string; children: ReactNode; empty?: string }) {
   return (
-    <section className="card gap-3 bg-base-200 p-4">
+    <section className="card gap-3 border border-base-300 bg-base-200 p-4 shadow-sm sm:p-5">
       <h3 className="font-bold">{title}</h3>
-      {empty ? <p className="text-sm opacity-70">{empty}</p> : <div className="h-60 w-full">{children}</div>}
+      {empty ? <p className="text-sm text-base-content/70">{empty}</p> : <div className="h-52 w-full sm:h-60">{children}</div>}
     </section>
   );
 }
 
-const STATUS_COLORS = { healthy: "#16a34a", diseased: "#dc2626", unknown: "#94a3b8" };
+const STATUS_COLORS = {
+  healthy: "var(--color-success)",
+  diseased: "var(--color-error)",
+  unknown: "var(--color-base-content)",
+};
+
+const axisTick = { fill: "var(--color-base-content)", fontSize: 11 };
+const gridStroke = "var(--color-base-300)";
+const tooltipStyle = {
+  backgroundColor: "var(--color-base-100)",
+  border: "1px solid var(--color-base-300)",
+  borderRadius: "var(--radius-box)",
+  color: "var(--color-base-content)",
+};
 
 function countByClass(predictions: { class: string }[]) {
   const counts = new Map<string, number>();
@@ -49,8 +62,8 @@ function DiseasePie({ data }: { data: { name: string; count: number; color: stri
         <Pie data={data} dataKey="count" nameKey="name" innerRadius={40} outerRadius={80} paddingAngle={2} label={({ value }) => String(value)}>
           {data.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
         </Pie>
-        <Tooltip />
-        <Legend wrapperStyle={{ fontSize: 11 }} />
+        <Tooltip contentStyle={tooltipStyle} />
+        <Legend wrapperStyle={{ fontSize: 11, color: "var(--color-base-content)" }} />
       </PieChart>
     </ResponsiveContainer>
   );
@@ -97,10 +110,10 @@ export function NoteCharts({ leaves, detections }: { leaves: LeafRecord[]; detec
       <ChartCard title="Thiếu hụt đạm theo từng lá (%)" empty={nitrogenData.length ? undefined : "Ghi chú này chưa có lá nào."}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={nitrogenData} margin={{ top: 8, right: 8, left: -20, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-            <YAxis domain={[0, 100]} />
-            <Tooltip formatter={(value) => [`${Number(value).toFixed(1)}%`, "Thiếu đạm"]} />
+            <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" />
+            <XAxis dataKey="name" tick={{ ...axisTick, fontSize: 11 }} stroke={gridStroke} />
+            <YAxis domain={[0, 100]} tick={{ ...axisTick, fontSize: 11 }} stroke={gridStroke} />
+            <Tooltip formatter={(value) => [`${Number(value).toFixed(1)}%`, "Thiếu đạm"]} contentStyle={tooltipStyle} />
             <Bar dataKey="value" name="Thiếu đạm" radius={[6, 6, 0, 0]}>
               {nitrogenData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
             </Bar>
@@ -115,11 +128,11 @@ export function NoteCharts({ leaves, detections }: { leaves: LeafRecord[]; detec
       <ChartCard title="Số vùng bệnh trên mỗi lá" empty={detections.some((d) => d.status === "complete") ? undefined : "Chưa nhận diện bệnh cho ghi chú này."}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={perLeafDisease} margin={{ top: 8, right: 8, left: -20, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="regions" name="Số vùng bệnh" fill="#dc2626" radius={[6, 6, 0, 0]} />
+            <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" />
+            <XAxis dataKey="name" tick={{ ...axisTick, fontSize: 11 }} stroke={gridStroke} />
+            <YAxis allowDecimals={false} tick={axisTick} stroke={gridStroke} />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Bar dataKey="regions" name="Số vùng bệnh" fill="var(--color-error)" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -158,11 +171,11 @@ export function RangeCharts({ rows, diseaseLeaves }: { rows: ChartRow[]; disease
       <ChartCard title="Xu hướng thiếu hụt đạm (%)" empty={daily.some((d) => d.nitrogen !== null) ? undefined : "Chưa có dữ liệu đạm."}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={daily} margin={{ top: 8, right: 8, left: -20, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-            <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-            <YAxis domain={[0, 100]} />
-            <Tooltip formatter={(value) => [`${value}%`, "Thiếu đạm TB"]} />
-            <Area type="monotone" dataKey="nitrogen" name="Thiếu đạm TB" stroke="#16a34a" fill="#16a34a" fillOpacity={0.25} connectNulls />
+            <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" />
+            <XAxis dataKey="date" tick={{ ...axisTick, fontSize: 10 }} stroke={gridStroke} />
+            <YAxis domain={[0, 100]} tick={axisTick} stroke={gridStroke} />
+            <Tooltip formatter={(value) => [`${value}%`, "Thiếu đạm TB"]} contentStyle={tooltipStyle} />
+            <Area type="monotone" dataKey="nitrogen" name="Thiếu đạm TB" stroke="var(--color-success)" fill="var(--color-success)" fillOpacity={0.25} connectNulls />
           </AreaChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -170,13 +183,13 @@ export function RangeCharts({ rows, diseaseLeaves }: { rows: ChartRow[]; disease
       <ChartCard title="Số lá và vùng bệnh theo ngày" empty={daily.length ? undefined : "Chưa có dữ liệu."}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={daily} margin={{ top: 8, right: 8, left: -20, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-            <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Bar dataKey="leaves" name="Số lá" fill="#0891b2" radius={[6, 6, 0, 0]} />
-            <Line type="monotone" dataKey="diseases" name="Vùng bệnh" stroke="#dc2626" />
+            <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" />
+            <XAxis dataKey="date" tick={{ ...axisTick, fontSize: 10 }} stroke={gridStroke} />
+            <YAxis allowDecimals={false} tick={axisTick} stroke={gridStroke} />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Legend wrapperStyle={{ fontSize: 11, color: "var(--color-base-content)" }} />
+            <Bar dataKey="leaves" name="Số lá" fill="var(--color-info)" radius={[6, 6, 0, 0]} />
+            <Line type="monotone" dataKey="diseases" name="Vùng bệnh" stroke="var(--color-error)" />
           </ComposedChart>
         </ResponsiveContainer>
       </ChartCard>

@@ -122,7 +122,7 @@ export default function DiarySelectPage() {
   }
 
   return (
-    <div className="flex w-full flex-col items-center gap-4 p-4 pb-24">
+    <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-5 px-4 py-4 pb-28 sm:gap-6 sm:px-6 sm:py-6">
       <CreateDiaryModal
         dialogRef={createDialogRef}
         loading={loading}
@@ -136,26 +136,29 @@ export default function DiarySelectPage() {
         onConfirm={handleDeleteDiary}
       />
 
-      <div className="w-full max-w-xl space-y-3">
-        <div className="rounded-box border border-base-300 bg-base-200 p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
-            Quản lý
-          </p>
-          <h1 className="mt-2 text-2xl font-black tracking-tight">Nhật ký của bạn</h1>
-        </div>
+      <header className="w-full max-w-2xl rounded-box border border-base-300 bg-base-200 p-4 shadow-sm sm:p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+          Qu��n lý
+        </p>
+        <h1 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
+          Nhật ký của bạn
+        </h1>
+        <p className="mt-1 text-sm text-base-content/70">
+          Theo dõi hành trình chăm sóc cây trồng của bạn.
+        </p>
+      </header>
 
+      <div className="w-full max-w-2xl">
         <button
-          className="btn btn-primary w-full rounded-2xl"
+          className="btn btn-primary min-h-12 w-full rounded-2xl shadow-sm sm:w-auto sm:px-6"
           onClick={() => createDialogRef.current?.showModal()}
         >
           + Tạo nhật ký mới
         </button>
       </div>
 
-      <div className="divider my-0 w-full max-w-xl" />
-
       {error && (
-        <div className="alert alert-error w-full max-w-xl shadow-sm">
+        <div role="alert" className="alert alert-error w-full max-w-2xl shadow-sm">
           <span>{error}</span>
           <button className="btn btn-sm btn-ghost" onClick={refreshDiaries}>
             Thử lại
@@ -164,16 +167,18 @@ export default function DiarySelectPage() {
       )}
 
       {initialLoading ? (
-        <div className="flex justify-center p-8">
-          <span className="loading loading-spinner loading-lg" />
+        <div className="flex justify-center p-8" aria-label="Đang tải nhật ký">
+          <span className="loading loading-spinner loading-lg text-primary" />
         </div>
       ) : cards.length === 0 ? (
-        <div className="w-full max-w-xl rounded-box border border-dashed border-base-300 bg-base-200 p-8 text-center">
+        <div className="w-full max-w-2xl rounded-box border border-dashed border-base-300 bg-base-200 p-6 text-center sm:p-10">
           <p className="text-lg font-semibold">Chưa có nhật ký nào</p>
-          <p className="mt-2 text-sm opacity-70">Hãy tạo nhật ký đầu tiên của bạn.</p>
+          <p className="mt-2 text-sm text-base-content/70">
+            Hãy tạo nhật ký đầu tiên của bạn.
+          </p>
         </div>
       ) : (
-        <div className="flex w-full max-w-xl flex-col items-center gap-4">
+        <div className="grid w-full max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
           {cards.map((card) => (
             <DiaryCard key={card.id} diary={card} onDelete={handleOpenDelete} />
           ))}

@@ -14,40 +14,45 @@ interface DiaryCardProps {
 
 export default function DiaryCard({ diary, onDelete }: DiaryCardProps) {
   return (
-    <div className="card w-[90%] overflow-hidden border border-base-300 bg-base-200 shadow-sm shadow-base-300/40">
-      <figure className="relative w-full">
+    <article className="card w-full overflow-hidden border border-base-300 bg-base-100 shadow-sm transition-shadow hover:shadow-md">
+      <figure className="relative w-full bg-base-300">
         <img
           src={getDiaryThumbnailSrc(diary.thumbnail_path)}
           alt={diary.diary_name}
-          className="h-48 w-full object-cover"
+          className="h-44 w-full object-cover sm:h-52"
         />
       </figure>
 
-      <div className="card-body flex flex-col p-4">
+      <div className="card-body flex flex-col gap-3 p-4 sm:p-5">
         <StreakBadge
           onStreak={diary.last_active_date >= getToday()}
           streak={diary.current_streak}
           className="absolute right-3 top-3 z-10"
         />
 
-        <h2 className="card-title text-base text-base-content">{diary.diary_name}</h2>
+        <h2 className="card-title break-words pr-2 text-base text-base-content sm:text-lg">
+          {diary.diary_name}
+        </h2>
 
-        <div className="space-y-1 text-sm text-base-content/70">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-base-content/70">
           <p>Chuỗi hiện tại: {diary.current_streak} ngày</p>
           <p>Kỷ lục: {diary.longest_streak} ngày</p>
         </div>
 
-        <div className="card-actions mt-auto flex w-full items-center gap-2 pt-2">
+        <div className="card-actions mt-auto flex w-full items-center gap-2 pt-1">
           <Link
-            className="btn btn-primary flex-1"
+            className="btn btn-primary min-h-12 flex-1"
             href={`/diary?id=${encodeURIComponent(diary.id)}`}
           >
             Xem nhật ký
           </Link>
 
-          <details className="dropdown dropdown-top dropdown-end ml-auto">
-            <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-base-300 bg-base-100 text-base-content transition hover:bg-base-200">
-              <FaBars size="14pt" />
+          <details className="dropdown dropdown-top dropdown-end">
+            <summary
+              aria-label={`Tùy chọn nhật ký ${diary.diary_name}`}
+              className="flex h-12 w-12 cursor-pointer list-none items-center justify-center rounded-full border border-base-300 bg-base-100 text-base-content transition-colors hover:bg-base-200"
+            >
+              <FaBars size={18} aria-hidden="true" />
             </summary>
 
             <ul className="menu dropdown-content z-20 w-40 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg">
@@ -65,6 +70,6 @@ export default function DiaryCard({ diary, onDelete }: DiaryCardProps) {
           </details>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

@@ -8,7 +8,7 @@ interface Props {
   predictions: DiseasePrediction[];
   /** Điểm thiếu hụt đạm (%), null nếu chưa có. */
   nitrogen: number | null;
-  /** Dùng để gợi ý ổn định giữa các lần render (ví dụ id ghi chú / id lá). */
+  /** Dùng để gợi ý ổn định giữa các lần render (ví dụ id ghi chú / id l��). */
   seed: string;
 }
 
@@ -18,6 +18,12 @@ const GROUP_BADGE: Record<Tip["group"], string> = {
   "Thuốc BVTV": "badge-error",
   "Theo dõi": "badge-info",
 };
+
+const NITROGEN_BADGE = {
+  low: "badge-success",
+  medium: "badge-warning",
+  high: "badge-error",
+} as const;
 
 function TipList({ tips }: { tips: Tip[] }) {
   return (
@@ -56,7 +62,7 @@ export default function AdviceCards({ predictions, nitrogen, seed }: Props) {
     <section className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-bold">Gợi ý xử lý</h3>
-        <button type="button" className="btn btn-xs btn-ghost border border-base-300" onClick={() => setRound((value) => value + 1)}>
+        <button type="button" className="btn btn-sm btn-ghost min-h-10 border border-base-300" onClick={() => setRound((value) => value + 1)}>
           Gợi ý khác
         </button>
       </div>
@@ -64,35 +70,35 @@ export default function AdviceCards({ predictions, nitrogen, seed }: Props) {
       {groups.map((group) => {
         const info = getDiseaseInfo(group.raw);
         return (
-          <article key={info.key} className="card gap-2 border-l-4 bg-base-200 p-4" style={{ borderLeftColor: info.color }}>
+          <article key={info.key} className="card gap-2 border-l-4 border-base-300 bg-base-200 p-4" style={{ borderLeftColor: info.color }}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h4 className="font-bold">{info.name}</h4>
-              <span className="text-xs opacity-70">
+              <span className="text-xs text-base-content/70">
                 {group.count} vùng · độ tin cậy TB {Math.round((group.confidenceSum / group.count) * 100)}%
               </span>
             </div>
-            <p className="text-sm opacity-80"><span className="font-semibold">Dấu hiệu:</span> {info.symptoms}</p>
-            <p className="text-sm opacity-80"><span className="font-semibold">Nguyên nhân:</span> {info.cause}</p>
+            <p className="text-sm text-base-content/80"><span className="font-semibold">Dấu hiệu:</span> {info.symptoms}</p>
+            <p className="text-sm text-base-content/80"><span className="font-semibold">Nguyên nhân:</span> {info.cause}</p>
             <TipList tips={getDiseaseTips(group.raw, `${seed}:${round}`, 4)} />
           </article>
         );
       })}
 
       {nitrogenAdvice && (
-        <article className="card gap-2 border-l-4 bg-base-200 p-4" style={{ borderLeftColor: nitrogenAdvice.level.color }}>
+        <article className="card gap-2 border-l-4 border-base-300 bg-base-200 p-4" style={{ borderLeftColor: nitrogenAdvice.level.color }}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h4 className="font-bold">Thiếu hụt đạm (Nitrogen)</h4>
-            <span className="badge border-0 text-white" style={{ backgroundColor: nitrogenAdvice.level.color }}>
+            <span className={`badge ${NITROGEN_BADGE[nitrogenAdvice.level.key]}`}>
               {nitrogenAdvice.level.label} · {Number(nitrogen).toFixed(1)}%
             </span>
           </div>
-          <p className="text-sm opacity-80">{nitrogenAdvice.summary}</p>
+          <p className="text-sm text-base-content/80">{nitrogenAdvice.summary}</p>
           {nitrogenAdvice.warning && <div className="alert alert-warning py-2 text-sm">{nitrogenAdvice.warning}</div>}
           <TipList tips={nitrogenAdvice.tips} />
         </article>
       )}
 
-      <p className="text-xs opacity-60">
+      <p className="text-xs text-base-content/60">
         Gợi ý mang tính tham khảo. Với thuốc bảo vệ thực vật, hãy đọc kỹ nhãn và hỏi cán bộ khuyến nông địa phương trước khi sử dụng.
       </p>
     </section>

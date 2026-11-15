@@ -19,9 +19,9 @@ export interface DiseaseInfo {
 }
 
 export const DISEASE_COLORS = {
-  Bacteria_Leaf_Blight: "#2563eb",
-  Brown_Spot: "#b45309",
-  Leaf_smut: "#7c3aed",
+  Bacteria_Leaf_Blight: "var(--color-info)",
+  Brown_Spot: "var(--color-warning)",
+  Leaf_smut: "var(--color-secondary)",
 } as const;
 
 const DISEASES: Record<string, DiseaseInfo> = {
@@ -82,7 +82,7 @@ export function normalizeClass(raw: string): string {
   return key === "bacterial_leaf_blight" ? "bacteria_leaf_blight" : key;
 }
 
-const FALLBACK_COLORS = ["#dc2626", "#0891b2", "#65a30d", "#db2777"];
+const FALLBACK_COLORS = ["var(--color-error)", "var(--color-info)", "var(--color-success)", "var(--color-secondary)"];
 
 export function getDiseaseInfo(raw: string): DiseaseInfo {
   const known = DISEASES[normalizeClass(raw)];
@@ -162,9 +162,9 @@ export interface NitrogenLevel {
 }
 
 export const NITROGEN_LEVELS: NitrogenLevel[] = [
-  { key: "low", label: "Nhẹ (dưới 20%)", color: "#16a34a" },
-  { key: "medium", label: "Trung bình (20–50%)", color: "#f59e0b" },
-  { key: "high", label: "Nặng (trên 50%)", color: "#dc2626" },
+  { key: "low", label: "Nhẹ (dưới 20%)", color: "var(--color-success)" },
+  { key: "medium", label: "Trung bình (20–50%)", color: "var(--color-warning)" },
+  { key: "high", label: "Nặng (trên 50%)", color: "var(--color-error)" },
 ];
 
 export function nitrogenLevel(value: number): NitrogenLevel {
