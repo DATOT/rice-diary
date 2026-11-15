@@ -41,12 +41,12 @@ export function ChartCard({
   empty?: string;
 }) {
   return (
-    <section className="card gap-3 border border-base-300 bg-base-200 p-4 shadow-sm sm:p-5">
+    <section className="card h-52 w-full gap-3 border border-base-300 bg-base-200 p-4 shadow-sm sm:p-5">
       <h3 className="font-bold">{title}</h3>
       {empty ? (
-        <p className="w-52 h-full text-sm text-base-content/70">{empty}</p>
+        <p className="h-full w-full text-sm text-base-content/70">{empty}</p>
       ) : (
-        <div className="h-52 w-full sm:h-60">{children}</div>
+        <div className="h-full w-full sm:h-60">{children}</div>
       )}
     </section>
   );
