@@ -10,6 +10,12 @@ import {
   saveAppSettings,
   type AppSettings,
 } from "@/app/lib/services/insights";
+import {
+  loadTipFrequencyHours,
+  saveTipFrequencyHours,
+  TIP_FREQUENCY_OPTIONS,
+  type TipFrequencyHours,
+} from "@/app/lib/services/notificationSettings";
 
 const THEMES = [
   { id: "system", name: "Theo hệ thống" },
@@ -18,27 +24,42 @@ const THEMES = [
   { id: "cupcake", name: "Bánh kem" },
 ];
 
+const DEFAULT_SETTINGS: AppSettings = {
+  theme: "light",
+  streakEnabled: true,
+  streakFrequencyHours: 24,
+  tipsEnabled: false,
+  reminderTime: "09:00",
+};
+
+const TIP_FREQUENCY_LABELS: Record<TipFrequencyHours, string> = {
+  6: "Thường xuyên — mỗi 6 giờ",
+  24: "Thỉnh thoảng — mỗi ngày",
+  72: "Ít thường xuyên — mỗi 3 ngày",
+  168: "Hiếm khi — mỗi tuần",
+};
+
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<AppSettings>({
-    theme: "light",
-    streakEnabled: true,
-    streakFrequencyHours: 24,
-    tipsEnabled: false,
-    reminderTime: "09:00",
-  });
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [tipsFrequencyHours, setTipsFrequencyHours] =
+    useState<TipFrequencyHours>(24);
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     let alive = true;
-    loadAppSettings()
-      .then((value) => {
+    Promise.all([loadAppSettings(), loadTipFrequencyHours()])
+      .then(([value, tipsFrequency]) => {
         if (!alive) return;
         setSettings(value);
+        setTipsFrequencyHours(tipsFrequency);
         document.documentElement.dataset.theme = value.theme;
-        setReady(true);
       })
-      .catch(() => setReady(true));
+      .catch(() => undefined)
+      .finally(() => {
+        if (alive) setReady(true);
+      });
+
     return () => {
       alive = false;
     };
@@ -50,6 +71,21 @@ export default function SettingsPage() {
     try {
       await saveAppSettings(next);
       setMessage("Đã lưu cài đặt.");
+    } catch (reason) {
+      setMessage(
+        reason instanceof Error ? reason.message : "Không thể lưu cài đặt.",
+      );
+    }
+  }
+
+  async function updateTipsFrequency(value: string) {
+    const frequency = Number(value) as TipFrequencyHours;
+    if (!TIP_FREQUENCY_OPTIONS.includes(frequency)) return;
+
+    setTipsFrequencyHours(frequency);
+    try {
+      await saveTipFrequencyHours(frequency);
+      setMessage("Đã lưu tần suất gửi mẹo chăm sóc.");
     } catch (reason) {
       setMessage(
         reason instanceof Error ? reason.message : "Không thể lưu cài đặt.",
@@ -79,6 +115,7 @@ export default function SettingsPage() {
   }
 
   if (!ready) return <div className="p-8 text-center">Đang tải cài đặt...</div>;
+
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-5 p-4 pb-28">
       <header>
@@ -87,6 +124,7 @@ export default function SettingsPage() {
           Tùy chỉnh giao diện và lời nhắc chăm sóc cây.
         </p>
       </header>
+
       <section className="card gap-3 bg-base-200 p-4">
         <h2 className="text-lg font-bold">Giao diện</h2>
         {THEMES.map((theme) => (
@@ -105,16 +143,16 @@ export default function SettingsPage() {
           </label>
         ))}
       </section>
+
       <section className="card gap-4 bg-base-200 p-4">
-        <div>
-          <h2 className="text-lg font-bold">Thông báo</h2>
-        </div>
+        <h2 className="text-lg font-bold">Thông báo</h2>
         <button
           className="btn btn-outline min-h-12"
           onClick={enableNotifications}
         >
           Bật quyền thông báo trên thiết bị
         </button>
+
         <label className="flex min-h-12 items-center justify-between gap-3 rounded-box bg-base-100 p-3">
           <span>
             <b>Nhắc duy trì chuỗi</b>
@@ -131,6 +169,7 @@ export default function SettingsPage() {
             }
           />
         </label>
+
         <label className="form-control gap-2">
           <span className="font-medium">Tần suất nhắc chuỗi</span>
           <select
@@ -150,11 +189,12 @@ export default function SettingsPage() {
             <option value={168}>Mỗi tuần</option>
           </select>
         </label>
+
         <label className="flex min-h-12 items-center justify-between gap-3 rounded-box bg-base-100 p-3">
           <span>
             <b>Mẹo chăm sóc ngẫu nhiên</b>
             <span className="block text-xs opacity-70">
-              Ví dụ: “Đừng quên tưới cây nhé!”
+              Nhận mẹo chăm sóc cây theo tần suất bạn chọn.
             </span>
           </span>
           <input
@@ -166,18 +206,24 @@ export default function SettingsPage() {
             }
           />
         </label>
+
         <label className="form-control gap-2">
-          <span className="font-medium">Giờ gửi mẹo chăm sóc</span>
-          <input
-            className="input input-bordered min-h-12 w-full"
-            type="time"
-            value={settings.reminderTime}
-            onChange={(event) =>
-              void update({ ...settings, reminderTime: event.target.value })
-            }
-          />
+          <span className="font-medium">Tần suất gửi mẹo chăm sóc</span>
+          <select
+            className="select select-bordered min-h-12 w-full"
+            value={tipsFrequencyHours}
+            onChange={(event) => void updateTipsFrequency(event.target.value)}
+            disabled={!settings.tipsEnabled}
+          >
+            {TIP_FREQUENCY_OPTIONS.map((hours) => (
+              <option key={hours} value={hours}>
+                {TIP_FREQUENCY_LABELS[hours]}
+              </option>
+            ))}
+          </select>
         </label>
       </section>
+
       {message && (
         <p role="status" className="text-center text-sm opacity-75">
           {message}
