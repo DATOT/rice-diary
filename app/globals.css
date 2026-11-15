@@ -50,8 +50,7 @@ header,
 
 img,
 video,
-canvas,
-svg {
+canvas {
   max-width: 100%;
 }
 
@@ -62,8 +61,7 @@ img {
 /* Calendar controls and chart labels can otherwise exceed narrow phone widths. */
 .vanilla-calendar,
 .vanilla-calendar *,
-.recharts-wrapper,
-.recharts-surface {
+.recharts-wrapper {
   max-width: 100%;
 }
 
