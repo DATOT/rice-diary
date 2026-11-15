@@ -61,7 +61,8 @@ img {
 /* Calendar controls and chart labels can otherwise exceed narrow phone widths. */
 .vanilla-calendar,
 .vanilla-calendar *,
-.recharts-wrapper {
+.recharts-wrapper,
+.recharts-surface {
   max-width: 100%;
 }
 
@@ -72,7 +73,16 @@ img {
 }
 
 .recharts-wrapper {
+  width: 100% !important;
+  height: 100% !important;
   min-width: 0;
+  display: block;
+}
+
+.recharts-surface {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 
 button,
