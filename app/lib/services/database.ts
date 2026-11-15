@@ -7,18 +7,19 @@ export interface DiarySummary {
   diary_name: string;
   description: string | null;
   is_dead: number;
-  allow_dead_notes: number;
   thumbnail_path: string | null;
   current_streak: number;
   longest_streak: number;
   last_active_date: number;
   created_at: number;
 }
+
 interface DiaryStreak {
   current_streak: number;
   longest_streak: number;
   last_active_date: number;
 }
+
 export interface DiaryNote {
   id: string;
   diary_id: string;
@@ -27,12 +28,14 @@ export interface DiaryNote {
   created_at: string;
   local_date: string;
 }
+
 export interface LeafRecord {
   id: string;
   note_id: string;
   file_path: string;
   nitrogen_deficiency: number;
 }
+
 export interface DiaryNoteDetails extends DiaryNote {
   leaves: LeafRecord[];
 }
@@ -69,7 +72,7 @@ async function getDb(): Promise<Database> {
 export async function loadDiaries(): Promise<DiarySummary[]> {
   return traceDatabase("Tải danh sách nhật ký", async () => {
     const db = await getDb();
-    const diaries = await db.select<DiarySummary[]>(`SELECT id, diary_name, description, is_dead, allow_dead_notes, thumbnail_path, current_streak, longest_streak, last_active_date, created_at FROM diaries_table ORDER BY created_at DESC`);
+    const diaries = await db.select<DiarySummary[]>(`SELECT id, diary_name, description, is_dead, thumbnail_path, current_streak, longest_streak, last_active_date, created_at FROM diaries_table ORDER BY created_at DESC`);
     if (DEBUG_DATABASE) console.debug(`[database] Đã tải ${diaries.length} nhật ký`);
     return diaries;
   });
@@ -78,7 +81,7 @@ export async function loadDiaries(): Promise<DiarySummary[]> {
 export async function loadDiary(id: string): Promise<DiarySummary | null> {
   return traceDatabase("Tải nhật ký", async () => {
     const db = await getDb();
-    const rows = await db.select<DiarySummary[]>(`SELECT id, diary_name, description, is_dead, allow_dead_notes, thumbnail_path, current_streak, longest_streak, last_active_date, created_at FROM diaries_table WHERE id = $1 LIMIT 1`, [id]);
+    const rows = await db.select<DiarySummary[]>(`SELECT id, diary_name, description, is_dead, thumbnail_path, current_streak, longest_streak, last_active_date, created_at FROM diaries_table WHERE id = $1 LIMIT 1`, [id]);
     if (DEBUG_DATABASE) console.debug(`[database] Nhật ký ${id}: ${rows.length ? "tìm thấy" : "không tồn tại"}`);
     return rows[0] ?? null;
   });
@@ -94,10 +97,10 @@ export async function createDiary(name: string, thumbnailPath: string | null): P
   });
 }
 
-export async function updateDiary(id: string, values: { diary_name: string; description: string | null; thumbnail_path: string | null; is_dead: boolean; allow_dead_notes: boolean }): Promise<void> {
+export async function updateDiary(id: string, values: { diary_name: string; description: string | null; thumbnail_path: string | null; is_dead: boolean }): Promise<void> {
   return traceDatabase("Cập nhật nhật ký", async () => {
     const db = await getDb();
-    await db.execute(`UPDATE diaries_table SET diary_name = $1, description = $2, thumbnail_path = $3, is_dead = $4, allow_dead_notes = $5 WHERE id = $6`, [values.diary_name, values.description, values.thumbnail_path, values.is_dead ? 1 : 0, values.allow_dead_notes ? 1 : 0, id]);
+    await db.execute(`UPDATE diaries_table SET diary_name = $1, description = $2, thumbnail_path = $3, is_dead = $4 WHERE id = $5`, [values.diary_name, values.description, values.thumbnail_path, values.is_dead ? 1 : 0, id]);
     if (DEBUG_DATABASE) console.debug(`[database] Đã cập nhật nhật ký ${id}`);
   });
 }
@@ -128,10 +131,11 @@ export async function uploadNoteToDiary(diaryId: string, noteThumbnailPath: stri
   return traceDatabase("Tạo ghi chú", async () => {
     const db = await getDb();
     const today = getToday();
-    const diaryRows = await db.select<{ id: string; is_dead: number; allow_dead_notes: number }[]>("SELECT id, is_dead, allow_dead_notes FROM diaries_table WHERE id = $1", [diaryId]);
+    const diaryRows = await db.select<{ id: string; is_dead: number }[]>("SELECT id, is_dead FROM diaries_table WHERE id = $1", [diaryId]);
     const diary = diaryRows[0];
     if (!diary) throw new Error("Không tìm thấy nhật ký.");
-    if (diary.is_dead && !diary.allow_dead_notes) throw new Error("Cây đã được đánh dấu đã chết; hãy bật chế độ cây xác sống trong cài đặt để tiếp tục ghi chú.");
+    if (diary.is_dead) throw new Error("Cây đã được đánh dấu đã chết; hãy tắt trạng thái này trước khi ghi chú mới.");
+
     const existing = await db.select<{ id: string }[]>(`SELECT id FROM diary_notes WHERE diary_id = $1 AND date(created_at, '+7 hours') = date('now', '+7 hours') LIMIT 1`, [diaryId]);
     if (existing.length) throw new Error("Hôm nay nhật ký này đã có ghi chú.");
 

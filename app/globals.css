@@ -2,11 +2,33 @@
 @import "vanilla-calendar-pro/styles/layout.css";
 @import "vanilla-calendar-pro/styles/core.css";
 @import "vanilla-calendar-pro/styles/motion.css";
+
 @plugin "daisyui" {
   themes: light --default, dark --prefersdark, cupcake;
 }
+
 :root {
   --vc-bg: var(--color-base-200);
   --vc-date-bg: transparent;
-  --vc-date-selected-bg: rgb(255, 153, 20);
+  --vc-date-selected-bg: color-mix(in srgb, oklch(var(--p)) 75%, white);
+  color-scheme: light dark;
+}
+
+html {
+  background: var(--color-base-100);
+  color: var(--color-base-content);
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, oklch(var(--p)) 10%, transparent), transparent 28%),
+    var(--color-base-100);
+}
+
+button,
+input,
+textarea,
+select {
+  transition: all 150ms ease;
 }

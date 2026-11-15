@@ -18,19 +18,19 @@ export default function DeleteDiaryModal({
 }: DeleteDiaryModalProps) {
   return (
     <dialog className="modal" ref={dialogRef}>
-      <div className="modal-box">
-        <h3 className="font-bold text-lg text-red-400">
+      <div className="modal-box border border-base-300 bg-base-100 shadow-xl">
+        <h3 className="text-lg font-bold text-error">
           Xóa nhật ký: &quot;{diary?.diary_name}&quot;
         </h3>
 
-        <p className="py-4">
+        <p className="py-4 text-base-content/80">
           Nhật ký &quot;{diary?.diary_name}&quot; sẽ bị xóa vĩnh viễn. Bạn chắc
           không?
         </p>
 
         <div className="modal-action">
           <button
-            className="btn"
+            className="btn btn-ghost"
             disabled={loading}
             onClick={() => dialogRef.current?.close()}
           >
