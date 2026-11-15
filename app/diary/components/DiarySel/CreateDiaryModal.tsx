@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, type RefObject } from "react";
-import { open } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import StreakIcon from "@/app/components/StreakIcon";
+import { pickImages } from "@/app/lib/services/imagePicker";
 
 interface CreateDiaryModalProps {
   dialogRef: RefObject<HTMLDialogElement | null>;
@@ -28,20 +28,8 @@ export default function CreateDiaryModal({
 
   async function selectThumbnail() {
     try {
-      const selected = await open({
-        multiple: false,
-        directory: false,
-        filters: [
-          {
-            name: "Images",
-            extensions: ["png", "jpg", "jpeg", "webp"],
-          },
-        ],
-      });
-
-      if (selected) {
-        setThumbnailPath(selected);
-      }
+      const [selected] = await pickImages(false);
+      if (selected) setThumbnailPath(selected);
     } catch (err) {
       setError(String(err));
     }

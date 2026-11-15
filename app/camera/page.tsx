@@ -50,14 +50,25 @@ export default function CameraPage() {
         if (!returnedForPermission.current) {
           returnedForPermission.current = true;
           window.alert(message);
-          router.back();
+
+          const returnTo = searchParams.get("from");
+          if (returnTo) {
+            const returnParams = new URLSearchParams(searchParams.toString());
+            returnParams.delete("from");
+            returnParams.delete("step");
+            const returnStep = step === "thumbnail" ? "avatar" : "leaf";
+            const query = returnParams.toString();
+            router.replace(`${returnTo}${query ? `?${query}` : ""}#${returnStep}`);
+          } else {
+            router.back();
+          }
         }
       }
     }
 
     void startCamera();
     return () => stream?.getTracks().forEach((track) => track.stop());
-  }, [router]);
+  }, [router, searchParams, step]);
 
   const captureImage = async () => {
     const video = videoRef.current;

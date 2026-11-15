@@ -2,8 +2,8 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { open } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import { pickImages } from "@/app/lib/services/imagePicker";
 import {
   deleteDiaryThumbnail,
   saveDiaryThumbnail,
@@ -63,15 +63,8 @@ function DiarySettingsContent() {
 
   async function selectThumbnail() {
     try {
-      const selected = await open({
-        multiple: false,
-        directory: false,
-        filters: [
-          { name: "Hình ảnh", extensions: ["png", "jpg", "jpeg", "webp"] },
-        ],
-      });
-
-      if (typeof selected === "string") setThumbnail(selected);
+      const [selected] = await pickImages(false);
+      if (selected) setThumbnail(selected);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     }
