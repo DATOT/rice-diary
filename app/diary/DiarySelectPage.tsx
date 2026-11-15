@@ -138,7 +138,7 @@ export default function DiarySelectPage() {
 
       <header className="w-full max-w-2xl rounded-box border border-base-300 bg-base-200 p-4 shadow-sm sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-          Qu��n lý
+          Quản lý
         </p>
         <h1 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
           Nhật ký của bạn
@@ -158,7 +158,10 @@ export default function DiarySelectPage() {
       </div>
 
       {error && (
-        <div role="alert" className="alert alert-error w-full max-w-2xl shadow-sm">
+        <div
+          role="alert"
+          className="alert alert-error w-full max-w-2xl shadow-sm"
+        >
           <span>{error}</span>
           <button className="btn btn-sm btn-ghost" onClick={refreshDiaries}>
             Thử lại
